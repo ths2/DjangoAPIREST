@@ -24,7 +24,7 @@ class AvaliacoesAPIView(generics.ListCreateAPIView):
         if self.kwargs.get('curso_pk'):
             return self.queryset.filter(curso_id = self.kwargs.get('curso_pk'))
         return self.queryset.all()
-        
+
 
 class AvaliacaoAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Avaliacao.objects.all()
@@ -45,8 +45,17 @@ class CursoViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def avaliacoes(self, request, pk=None):
-        curso = self.get_object()
-        serializer = AvaliacaoSerializer(curso.avaliacoes.all(), many=True)
+
+        # Pagination:
+        self.pagination_class.page_size = 1
+        avaliacoes = Avaliacao.objects.filter(curso_id = pk)
+        page = self.paginate_queryset(avaliacoes)
+
+        if page is not None: 
+            serializer = AvaliacaoSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = AvaliacaoSerializer(avaliacoes.all(), many=True)
         return Response(serializer.data)
 
 ''' VIEW SET PADRAO

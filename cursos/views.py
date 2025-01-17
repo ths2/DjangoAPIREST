@@ -5,6 +5,9 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import permissions
+from .permissions import EhSuperUsuario
+
 
 # ======================= API V1 ===============================
 class CursosAPIView(generics.ListCreateAPIView):
@@ -42,6 +45,10 @@ class AvaliacaoAPIView(generics.RetrieveUpdateDestroyAPIView):
 class CursoViewSet(viewsets.ModelViewSet):
     queryset = Curso.objects.all()
     serializer_class = CursoSerizalizer
+
+    # Permissions:
+    #permission_classes = (permissions.DjangoModelPermissions,)
+    permission_classes = (EhSuperUsuario, permissions.DjangoModelPermissions,)
 
     @action(detail=True, methods=['get'])
     def avaliacoes(self, request, pk=None):
